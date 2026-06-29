@@ -1,0 +1,51 @@
+@startuml sequence
+title market-forecaster — single forecast run (one correlation id, end to end)
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 13
+skinparam SequenceArrowThickness 2.5
+skinparam SequenceLifeLineBorderThickness 2
+skinparam ParticipantBorderThickness 2
+skinparam ParticipantFontStyle bold
+skinparam roundCorner 10
+
+participant "Scheduler / HTTP" as SCH #C8E6C9
+participant "Pipeline (cid)" as PIPE #FFF59D
+participant "Price source\n(Yahoo; Finnhub if premium)" as DS #B2DFDB
+participant "TimesFM" as TFM #D1C4E9
+participant "Baseline" as BL #FFE0B2
+participant "Finnhub News" as FH #FFCCBC
+participant "Ollama / qwen3" as OLL #F8BBD0
+participant "HermesTechBot" as HB #FFCC80
+
+autonumber
+
+SCH -[#2E7D32,bold]> PIPE : run(symbols, horizon)  [cid >>>]
+note over SCH,PIPE #C8E6C9: scheduler fires per market\nat its local close
+
+PIPE -[#00796B,bold]> DS : fetch_prices(spec, lookback)
+note over DS #B2DFDB: free tier: skip Finnhub candles (403)
+DS -[#00796B,bold]> DS : yfinance daily history\n(^IXIC / ^NZ50 / ^FTSE / ...)
+DS -[#00796B,bold]--> PIPE : daily closes (source=yahoo)
+
+PIPE -[#5E35B1,bold]> TFM : forecast(closes, horizon)
+TFM -[#5E35B1,bold]--> PIPE : point + quantiles\ncols [mean, q0.1..q0.9] → 10–90% band
+PIPE -[#5E35B1,bold]> TFM : forecast(train, horizon)  [backtest]
+TFM -[#5E35B1,bold]--> PIPE : backtest point
+
+PIPE -[#F9A825,bold]> BL : compare(test, model, naive, train)
+BL -[#F9A825,bold]--> PIPE : MASE / beats_naive
+
+PIPE -[#D84315,bold]> FH : GET /news?category=general
+FH -[#D84315,bold]--> PIPE : headlines
+
+PIPE -[#C2185B,bold]> OLL : POST /api/generate\n(prompt: numbers + band + headlines)
+OLL -[#C2185B,bold]--> PIPE : {sentiment, narrative}
+
+PIPE -[#2E7D32,bold]--> SCH : RunResult (JSON + Telegram text)  [cid <<<]
+SCH -[#E65100,bold]> HB : POST HERMES_WEBHOOK_URL {text, result}
+HB -[#E65100,bold]> HB : deliver to Telegram
+
+@enduml

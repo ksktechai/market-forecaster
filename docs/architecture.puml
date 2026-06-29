@@ -1,0 +1,52 @@
+@startuml architecture
+title market-forecaster — deployment architecture
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 13
+skinparam ArrowThickness 2.5
+skinparam ArrowFontStyle bold
+skinparam roundCorner 12
+skinparam rectangle {
+  BorderThickness 2.5
+}
+skinparam package {
+  BorderThickness 2.5
+  FontStyle bold
+}
+
+actor "Telegram users" as USERS
+
+package "Raspberry Pi (LAN) — Telegram only" as PI #FFE0B2 {
+  rectangle "HermesTechBot / OpenClaw\nTelegram listener + webhook relay" as HERMES #FFCC80
+}
+
+package "Apple-silicon M2 Max" as MAC #E3F2FD {
+  package "market-forecaster (Docker container)" as SVC #F5FAFF {
+    rectangle "FastAPI HTTP\nPOST /forecast · /forecast/{symbol} · /health" as API #BBDEFB
+    rectangle "APScheduler\nper-market close crons\nUS · NZ · AU · EU · SG · KR · IN · UK\n(each in its local timezone)" as SCH #C8E6C9
+    rectangle "Forecast pipeline\none run = one correlation id" as PIPE #FFF59D
+    rectangle "TimesFM 2.5 200m\nnumeric in → point + quantiles\n(local PyTorch, CPU/MPS)" as TFM #D1C4E9
+  }
+  rectangle "Ollama / qwen3\ntext in → text out\n(host, outside container)" as OLL #F8BBD0
+}
+
+package "External services" as EXT #ECEFF1 {
+  rectangle "Finnhub REST\nnews (free) · candles (premium, off by default)" as FH #FFCCBC
+  rectangle "Yahoo Finance (yfinance + curl_cffi)\nkeyless daily prices · 8 indices:\n^IXIC ^NZ50 ^AXJO ^STOXX50E\n^STI ^KS11 ^NSEI ^FTSE" as YH #B2DFDB
+  rectangle "Hugging Face\nTimesFM weights (first run, cached)" as HF #FFE082
+}
+
+USERS <-[#455A64,bold]-> HERMES : Telegram
+HERMES -[#E65100,bold]-> API : HTTP POST /forecast
+API -[#1976D2,bold]-> PIPE
+SCH -[#2E7D32,bold]-> PIPE : scheduled run
+PIPE -[#5E35B1,bold]-> TFM : forecast()
+PIPE -[#00796B,bold]-> YH : prices (default)
+PIPE -[#D84315,bold]-> FH : news (+ prices if premium)
+PIPE -[#C2185B,bold]-> OLL : narrative prompt
+TFM .[#FF8F00,bold].> HF : weights (first run)
+SCH -[#2E7D32,bold]-> HERMES : POST result → Telegram
+
+@enduml
