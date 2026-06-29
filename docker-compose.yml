@@ -1,0 +1,32 @@
+# market-forecaster -- runs on the M2 Max (NOT the Raspberry Pi).
+#
+#   cp .env.example .env   # fill FINNHUB_API_KEY, OLLAMA_BASE_URL, etc.
+#   docker compose up -d --build
+#
+# Ollama runs on the host Mac (outside the container); the container reaches it
+# via host.docker.internal. On macOS, set Docker Desktop to "start at login" so
+# the container survives a reboot (macOS has no systemd).
+services:
+  market-forecaster:
+    build: .
+    image: market-forecaster:latest
+    container_name: market-forecaster
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Ensure the in-container default points at the host Ollama even if .env omits it.
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      HF_HOME: /models/hf
+    ports:
+      - "${HTTP_PORT:-8000}:8000"
+    volumes:
+      # Persist Hugging Face / TimesFM weights across restarts so they are not
+      # re-downloaded every container start.
+      - hf_cache:/models/hf
+    extra_hosts:
+      # Lets the container reach Ollama running on the host Mac.
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  hf_cache:

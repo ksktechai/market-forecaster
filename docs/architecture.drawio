@@ -1,0 +1,90 @@
+<mxfile host="app.diagrams.net" type="device">
+  <diagram id="arch" name="Architecture">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="820" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ===== group backgrounds (drawn first = behind) ===== -->
+        <mxCell id="gPI" value="🍓 Raspberry Pi (LAN) — Telegram only" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#E65100;strokeWidth=2;verticalAlign=top;fontStyle=1;fontSize=13;fontColor=#E65100;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="200" y="300" width="230" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="gMAC" value="💻 Apple-silicon M2 Max — service + model + Ollama" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;strokeWidth=2;verticalAlign=top;fontStyle=1;fontSize=13;fontColor=#1565C0;arcSize=4;" vertex="1" parent="1">
+          <mxGeometry x="470" y="40" width="560" height="720" as="geometry" />
+        </mxCell>
+        <mxCell id="gSVC" value="market-forecaster (Docker container)" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;fillColor=#F5FAFF;strokeColor=#1976D2;strokeWidth=2;verticalAlign=top;fontStyle=2;fontSize=12;fontColor=#1976D2;arcSize=4;" vertex="1" parent="1">
+          <mxGeometry x="495" y="120" width="320" height="500" as="geometry" />
+        </mxCell>
+        <mxCell id="gEXT" value="☁️ External services" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#546E7A;strokeWidth=2;verticalAlign=top;fontStyle=1;fontSize=13;fontColor=#546E7A;arcSize=4;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="120" width="320" height="520" as="geometry" />
+        </mxCell>
+
+        <!-- ===== nodes ===== -->
+        <mxCell id="users" value="Telegram users" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#CFD8DC;strokeColor=#455A64;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="380" width="130" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="hermes" value="HermesTechBot / OpenClaw&#10;Telegram listener + webhook relay" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFCC80;strokeColor=#E65100;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="220" y="360" width="190" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="api" value="FastAPI HTTP&#10;POST /forecast · /forecast/{symbol} · /health" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1976D2;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="515" y="165" width="280" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="sch" value="APScheduler&#10;per-market close crons&#10;US · NZ · AU · EU · SG · KR · IN · UK&#10;(each in its local timezone)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#2E7D32;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="515" y="255" width="280" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="pipe" value="Forecast pipeline&#10;one run = one correlation id" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF59D;strokeColor=#F9A825;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="515" y="400" width="280" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="tfm" value="TimesFM 2.5 200m&#10;numeric in → point + quantiles&#10;(local PyTorch, CPU/MPS)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D1C4E9;strokeColor=#5E35B1;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="515" y="500" width="280" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ollama" value="Ollama / qwen3&#10;text in → text out&#10;(host, outside container)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8BBD0;strokeColor=#C2185B;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="860" y="430" width="150" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="fh" value="Finnhub REST&#10;news (free) · candles (premium, off by default)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFCCBC;strokeColor=#D84315;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="175" width="280" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="yh" value="Yahoo Finance (yfinance + curl_cffi)&#10;keyless daily prices · 8 indices:&#10;^IXIC ^NZ50 ^AXJO ^STOXX50E&#10;^STI ^KS11 ^NSEI ^FTSE" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B2DFDB;strokeColor=#00796B;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="295" width="280" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="hf" value="Hugging Face&#10;TimesFM weights (first run, cached)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE082;strokeColor=#FF8F00;strokeWidth=2;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="465" width="280" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- ===== edges (thick + colored) ===== -->
+        <mxCell id="e_users" value="Telegram" style="endArrow=classic;startArrow=classic;html=1;strokeWidth=3;strokeColor=#455A64;fontSize=11;fontStyle=1;" edge="1" parent="1" source="users" target="hermes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_req" value="HTTP POST /forecast" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#E65100;fontSize=11;fontStyle=1;" edge="1" parent="1" source="hermes" target="api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_apipipe" value="" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#1976D2;" edge="1" parent="1" source="api" target="pipe">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_schpipe" value="scheduled run" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#2E7D32;fontSize=11;fontStyle=1;" edge="1" parent="1" source="sch" target="pipe">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_pipetfm" value="forecast()" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#5E35B1;fontSize=11;fontStyle=1;" edge="1" parent="1" source="pipe" target="tfm">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_pipeyh" value="prices (default)" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#00796B;fontSize=11;fontStyle=1;" edge="1" parent="1" source="pipe" target="yh">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_pipefh" value="news (+ prices if premium)" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#D84315;fontSize=11;fontStyle=1;" edge="1" parent="1" source="pipe" target="fh">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_pipeoll" value="narrative prompt" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#C2185B;fontSize=11;fontStyle=1;" edge="1" parent="1" source="pipe" target="ollama">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_tfmhf" value="weights (first run)" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#FF8F00;dashed=1;fontSize=11;fontStyle=1;" edge="1" parent="1" source="tfm" target="hf">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_result" value="POST result → Telegram" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#2E7D32;dashed=1;fontSize=11;fontStyle=1;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="sch" target="hermes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,12 @@
+# Heavy model dependencies, installed separately from the core service so the
+# rest of the app stays lightweight and testable.
+#
+# TimesFM 2.5 is not on PyPI yet -- it is installed from GitHub. torch is a
+# large download and is compiled/optimised per-platform, so we keep it isolated.
+#
+#   pip install -r requirements-model.txt
+#
+torch>=2.4
+# TimesFM is pulled from its GitHub repo (not PyPI). Pin to a tag/commit in
+# production for reproducibility.
+timesfm @ git+https://github.com/google-research/timesfm.git
