@@ -51,6 +51,9 @@ premium/paid source is a drop-in change.
 
 ---
 
+> 📘 Full step-by-step setup, env-var reference, and troubleshooting:
+> **[docs/DEPLOY.md](docs/DEPLOY.md)**.
+
 ## Deploy (target: Apple-silicon M2 Max — NOT the Raspberry Pi)
 
 TimesFM + torch are too heavy for the Pi. The Pi only runs HermesTechBot/OpenClaw
